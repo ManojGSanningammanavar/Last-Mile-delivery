@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+.pytest_cache/
+.ipynb_checkpoints/
+models/*.pkl
+logs/
+.DS_Store
+
+# Local FFmpeg binaries (keep local, do not commit)
+tools/ffmpeg/
+tools/ffmpeg-release-essentials.zip

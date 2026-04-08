@@ -1,0 +1,65 @@
+project:
+  name: Smart Last-Mile Delivery Intelligence System
+  timezone: Asia/Kolkata
+
+paths:
+  raw_orders: data/raw/orders_raw.csv
+  area_risk: data/raw/area_risk.csv
+  weather: data/raw/weather_sample.csv
+  processed_orders: data/processed/orders_clean.csv
+  features_train: data/processed/features_train.csv
+  place_graph: data/processed/place_graph.json
+  model: models/failure_model.pkl
+  preprocessor: models/preprocessor.pkl
+  metadata: models/metadata.json
+
+thresholds:
+  address_confidence_low: 0.45
+  geo_confidence_low: 0.5
+  risk_medium: 0.45
+  risk_high: 0.70
+  place_match_threshold: 0.78
+
+routing:
+  average_speed_kmph: 22
+  warehouse_lat: 12.9716
+  warehouse_lon: 77.5946
+
+features:
+  enable_weather: true
+  enable_place_graph: true
+  enable_counterfactual: true
+
+weather:
+  enable_live: true
+
+geocode:
+  enable_async_enrichment: true
+  warmup_limit: 800
+
+api:
+  allowed_origins:
+    - http://127.0.0.1:8000
+    - http://localhost:8000
+    - http://127.0.0.1:8001
+    - http://localhost:8001
+  auth_required: false
+  rate_limit_enabled: true
+
+geo:
+  cities:
+    bengaluru:
+      bounds:
+        lat_min: 12.7
+        lat_max: 13.2
+        lon_min: 77.3
+        lon_max: 77.9
+      centroid:
+        lat: 12.9716
+        lon: 77.5946
+
+address:
+  area_aliases:
+    - sarjapur
+    - hebbal
+    - rajajinagar

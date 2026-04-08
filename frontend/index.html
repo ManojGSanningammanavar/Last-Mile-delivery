@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DeliveryAI Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body class="theme-atlas route-home">
+    <div id="introLoader" class="intro-loader">
+        <div class="intro-loader__inner">
+            <p class="intro-loader__title">DeliveryAI Studio</p>
+            <p class="intro-loader__tag">Loading experience...</p>
+            <div class="intro-loader__bar"><span id="loaderProgress"></span></div>
+            <button id="enterBtn" class="intro-loader__enter" type="button">Enter</button>
+        </div>
+    </div>
+
+    <div id="menuOverlay" class="overlay-menu" aria-hidden="true">
+        <div class="overlay-menu__content">
+            <h2 class="overlay-menu__title">Navigation</h2>
+            <nav class="overlay-menu__nav">
+                <a href="#home" class="overlay-link" data-route="home"><span>01</span> Index</a>
+                <a href="#dashboard" class="overlay-link" data-route="dashboard"><span>02</span> Dashboard</a>
+                <a href="#dashboard" class="overlay-link" data-route="dashboard" data-scroll-target="map"><span>03</span> Route Theatre</a>
+                <a href="#dashboard" class="overlay-link" data-route="dashboard" data-scroll-target="impactChart"><span>04</span> Insights</a>
+            </nav>
+        </div>
+    </div>
+
+    <div id="customCursor" class="cursor-shell" aria-hidden="true">
+        <span class="cursor-shell__dot"></span>
+        <span class="cursor-shell__ring"></span>
+    </div>
+
+    <button id="menuToggle" class="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="menuOverlay">
+        <span></span><span></span>
+    </button>
+
+    <canvas id="ambientCanvas" class="ambient-canvas" aria-hidden="true"></canvas>
+
+    <main class="shell">
+        <section id="pageHome" class="page-view page-home is-active" aria-label="Launch page">
+            <div class="film-grain" aria-hidden="true"></div>
+            <div class="launch-scene" aria-hidden="true">
+                <span class="launch-arch"></span>
+                <span class="launch-arch launch-arch-two"></span>
+                <span class="launch-stair"></span>
+                <span class="launch-orb"></span>
+                <span class="launch-water"></span>
+            </div>
+
+            <header class="launch-topbar">
+                <p class="launch-brand">DeliveryAI studio</p>
+                <nav class="launch-nav" aria-label="Primary navigation">
+                    <button type="button" class="launch-link" data-route="home">Index</button>
+                    <button type="button" class="launch-link" data-route="home" data-scroll-target="contactInfo">Contact</button>
+                    <button class="launch-menu-dot" type="button" aria-label="Menu">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                </nav>
+            </header>
+
+            <div class="launch-center">
+                <p class="launch-kicker">A RISK, DISPATCH & MOTION INTELLIGENCE STUDIO</p>
+                <h1 class="launch-title"><span>Creating the</span> unexpected certainty</h1>
+                <button id="goDashboardBtn" class="launch-cta" type="button">
+                    View our work
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <section class="home-detail-grid" aria-label="Studio overview">
+                <article class="home-detail-card">
+                    <p class="home-detail-label">What We Build</p>
+                    <h3>Risk-aware dispatch control</h3>
+                    <p>DeliveryAI combines address intelligence, predictive risk scoring, and route optimization into one operational decision surface.</p>
+                </article>
+                <article class="home-detail-card">
+                    <p class="home-detail-label">Why It Matters</p>
+                    <h3>Fewer failed drops</h3>
+                    <p>Teams can simulate interventions before deployment, compare expected uplift, and prioritize actions with measurable impact.</p>
+                </article>
+                <article class="home-detail-card">
+                    <p class="home-detail-label">Platform</p>
+                    <h3>FastAPI + ML + Digital Twin</h3>
+                    <p>From conformal uncertainty to causal recommendations and twin simulation, the studio is designed for real-time field decisions.</p>
+                </article>
+                <article id="contactInfo" class="home-detail-card">
+                    <p class="home-detail-label">Contact</p>
+                    <h3>Reach DeliveryAI</h3>
+                    <p><a href="mailto:deliveryAi@gmail.com">deliveryAi@gmail.com</a></p>
+                    <p><a href="tel:+916364205955">6364205955</a></p>
+                </article>
+            </section>
+
+        </section>
+
+        <section id="pageDashboard" class="page-view page-dashboard" aria-label="Analysis dashboard page">
+            <header class="dash-topbar panel animate-in">
+                <div>
+                    <p class="panel-kicker">DeliveryAI Command</p>
+                    <h1 class="dash-title">System Dashboard</h1>
+                </div>
+                <nav class="dash-nav">
+                    <button class="dash-nav-btn" data-route="home" type="button">Back to Index</button>
+                    <button class="dash-nav-btn" data-scroll-target="map" type="button" data-route="dashboard">Map</button>
+                    <button class="dash-nav-btn" data-scroll-target="impactChart" type="button" data-route="dashboard">Charts</button>
+                </nav>
+            </header>
+
+            <section class="kpi-ribbon animate-in">
+                <article class="kpi-card kpi-a">
+                    <p class="kpi-title">Orders Processed</p>
+                    <p class="kpi-number" id="metricTotalOrders">0</p>
+                </article>
+                <article class="kpi-card kpi-b">
+                    <p class="kpi-title">High Risk</p>
+                    <p class="kpi-number" id="metricHighRisk">0</p>
+                </article>
+                <article class="kpi-card kpi-c">
+                    <p class="kpi-title">Failure Before</p>
+                    <p class="kpi-number" id="metricBeforeRate">0%</p>
+                </article>
+                <article class="kpi-card kpi-d">
+                    <p class="kpi-title">Failure After</p>
+                    <p class="kpi-number" id="metricAfterRate">0%</p>
+                </article>
+                <article class="kpi-card kpi-e">
+                    <p class="kpi-title">Improvement</p>
+                    <p class="kpi-number" id="metricImproveRate">0%</p>
+                </article>
+            </section>
+
+            <section class="panel animate-in">
+                <div class="panel-top">
+                    <div>
+                        <p class="panel-kicker">Production Watch</p>
+                        <h2 class="panel-heading">Model Monitoring</h2>
+                    </div>
+                </div>
+                <div class="kpi-ribbon">
+                    <article class="kpi-card kpi-a">
+                        <p class="kpi-title">Model</p>
+                        <p class="kpi-number" id="monitorModelName">-</p>
+                    </article>
+                    <article class="kpi-card kpi-b">
+                        <p class="kpi-title">F1</p>
+                        <p class="kpi-number" id="monitorF1">-</p>
+                    </article>
+                    <article class="kpi-card kpi-c">
+                        <p class="kpi-title">ROC AUC</p>
+                        <p class="kpi-number" id="monitorRocAuc">-</p>
+                    </article>
+                    <article class="kpi-card kpi-d">
+                        <p class="kpi-title">Predictions (24h)</p>
+                        <p class="kpi-number" id="monitorPredCount">0</p>
+                    </article>
+                    <article class="kpi-card kpi-e">
+                        <p class="kpi-title">Geocode Queue</p>
+                        <p class="kpi-number" id="monitorGeoQueue">0</p>
+                    </article>
+                </div>
+                <div class="advanced-table-wrap">
+                    <table class="advanced-table">
+                        <thead>
+                            <tr>
+                                <th>Window</th>
+                                <th>Avg Failure Probability</th>
+                                <th>Risk Mix (L/M/H)</th>
+                                <th>Cache Entries</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="monitorWindow">24h</td>
+                                <td id="monitorAvgProb">-</td>
+                                <td id="monitorRiskMix">0/0/0</td>
+                                <td id="monitorGeoCache">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="workspace animate-in">
+                <aside class="panel panel-input">
+                    <div class="panel-top">
+                        <div>
+                            <p class="panel-kicker">Dispatch Payload</p>
+                            <h2 class="panel-heading">Input Orders</h2>
+                        </div>
+                        <button class="tool-btn" id="copyExampleBtn" title="Copy sample" type="button">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="input-tabs" role="tablist" aria-label="Input format views">
+                        <button id="inputTabJson" class="output-tab is-active" type="button" role="tab" aria-selected="true">JSON</button>
+                        <button id="inputTabTable" class="output-tab" type="button" role="tab" aria-selected="false">Table Preview</button>
+                    </div>
+                    <div id="inputJsonView" class="input-view is-active">
+                        <textarea id="ordersInput" class="code-editor" rows="16" placeholder="Paste your orders JSON here..." spellcheck="false">[
+  {
+    "order_id": "ORD_001",
+    "order_datetime": "2026-03-19 10:30:00",
+    "address_raw": "Near temple 3rd cross BTM Layout Bengaluru",
+    "city": "Bengaluru",
+    "pincode": "560076",
+    "customer_id": "CUST_001",
+    "past_failures": 1,
+    "distance_km": 5.4,
+    "time_slot": "evening",
+    "area_risk_score": 0.30
+  },
+  {
+    "order_id": "ORD_002",
+    "order_datetime": "2026-03-19 14:15:00",
+    "address_raw": "opposite school whitefield bangalore",
+    "city": "Bengaluru",
+    "pincode": "560066",
+    "customer_id": "CUST_002",
+    "past_failures": 3,
+    "distance_km": 12.5,
+    "time_slot": "afternoon",
+    "area_risk_score": 0.65
+  }
+]</textarea>
+                                        </div>
+                                        <div id="inputTableView" class="input-view input-table-view" aria-live="polite"></div>
+                    <div class="panel-actions">
+                        <button id="processBtn" class="run-btn" type="button">
+                            <i class="fas fa-play"></i>
+                            <span>Run Analysis</span>
+                        </button>
+                        <span class="loading-text" id="loadingText" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Processing...
+                        </span>
+                    </div>
+                </aside>
+
+                <section class="panel panel-output">
+                    <div class="panel-top">
+                        <div>
+                            <p class="panel-kicker">Inference Stream</p>
+                            <h2 class="panel-heading">System Output</h2>
+                        </div>
+                        <button class="tool-btn" id="copyOutputBtn" title="Copy output" type="button">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="output-tabs" role="tablist" aria-label="System output views">
+                        <button id="outputTabSummary" class="output-tab is-active" type="button" role="tab" aria-selected="true">Summary</button>
+                        <button id="outputTabOrders" class="output-tab" type="button" role="tab" aria-selected="false">Orders Table</button>
+                        <button id="outputTabRaw" class="output-tab" type="button" role="tab" aria-selected="false">Raw JSON</button>
+                    </div>
+                    <div id="outputSummaryView" class="output-view is-active">
+                        <p class="advanced-empty">Run analysis to view output summary.</p>
+                    </div>
+                    <div id="outputOrdersView" class="output-view">
+                        <p class="advanced-empty">Run analysis to view orders in table format.</p>
+                    </div>
+                    <div id="outputRawView" class="output-view">
+                        <pre id="outputBox" class="code-output output-raw">Click "Run Analysis" to see results here...</pre>
+                    </div>
+                </section>
+            </section>
+
+            <section class="viz-grid animate-in">
+                <article class="panel panel-map">
+                    <div class="panel-top">
+                        <div>
+                            <p class="panel-kicker">Operational Geometry</p>
+                            <h2 class="panel-heading">Route Theatre</h2>
+                        </div>
+                    </div>
+                    <div class="map-legend">
+                        <span class="legend-item"><span class="legend-color legend-low"></span>Low</span>
+                        <span class="legend-item"><span class="legend-color legend-medium"></span>Medium</span>
+                        <span class="legend-item"><span class="legend-color legend-high"></span>High</span>
+                    </div>
+                    <div class="route-line-legend" aria-label="Route line type legend">
+                        <span class="legend-item">
+                            <span class="line-chip line-chip-direct"></span>
+                            Dashed: Direct (Haversine)
+                        </span>
+                        <span class="legend-item">
+                            <span class="line-chip line-chip-road"></span>
+                            Solid: Exact Road Path
+                        </span>
+                    </div>
+                    <div class="route-mode-bar" role="group" aria-label="Route visualization mode">
+                        <button id="routeModeDirect" class="mission-tag-btn is-active" type="button" aria-pressed="true">Direct (Haversine)</button>
+                        <button id="routeModeRoad" class="mission-tag-btn" type="button" aria-pressed="false">Road (Exact)</button>
+                        <span id="roadRouteMeta" class="route-mode-meta">Road route off</span>
+                    </div>
+                    <div id="routeChoiceBar" class="route-choice-bar" aria-label="Route choice options"></div>
+                    <div id="mapStatus" class="map-status">Initializing map...</div>
+                    <div id="map" class="leaflet-map"></div>
+                </article>
+
+                <article class="panel panel-charts">
+                    <div class="panel-top">
+                        <div>
+                            <p class="panel-kicker">Comparative Insight</p>
+                            <h2 class="panel-heading">Impact Studio</h2>
+                        </div>
+                    </div>
+                    <div class="chart-block">
+                        <h3 class="chart-title">Failure Rate Delta</h3>
+                        <canvas id="impactChart" class="chart"></canvas>
+                    </div>
+                    <div class="chart-block">
+                        <h3 class="chart-title">Risk Composition</h3>
+                        <canvas id="riskChart" class="chart"></canvas>
+                    </div>
+                </article>
+            </section>
+
+            <section class="advanced-grid animate-in">
+                <article class="panel panel-advanced">
+                    <div class="panel-top">
+                        <div>
+                            <p class="panel-kicker">Conformal Layer</p>
+                            <h2 class="panel-heading">Uncertainty</h2>
+                        </div>
+                    </div>
+                    <div class="insight-cards">
+                        <div class="insight-card">
+                            <p class="insight-label">Coverage Width</p>
+                            <p id="uncertaintyWidth" class="insight-value">-</p>
+                        </div>
+                        <div class="insight-card">
+                            <p class="insight-label">Uncertainty Mix</p>
+                            <p id="uncertaintyMix" class="insight-value">-</p>
+                        </div>
+                    </div>
+                    <div id="uncertaintyBox" class="advanced-render">Run analysis to load uncertainty bands...</div>
+                    <details class="advanced-raw">
+                        <summary>View Raw JSON</summary>
+                        <pre id="uncertaintyRaw" class="code-output">-</pre>
+                    </details>
+                </article>
+
+                <article class="panel panel-advanced">
+                    <div class="panel-top">
+                        <div>
+                            <p class="panel-kicker">Intervention Policy</p>
+                            <h2 class="panel-heading">Causal Action</h2>
+                        </div>
+                    </div>
+                    <div class="insight-cards">
+                        <div class="insight-card">
+                            <p class="insight-label">Top Action</p>
+                            <p id="causalBestAction" class="insight-value">-</p>
+                        </div>
+                        <div class="insight-card">
+                            <p class="insight-label">Avg Uplift</p>
+                            <p id="causalAvgUplift" class="insight-value">-</p>
+                        </div>
+                    </div>
+                    <div id="causalBox" class="advanced-render">Run analysis to load action ranking...</div>
+                    <details class="advanced-raw">
+                        <summary>View Raw JSON</summary>
+                        <pre id="causalRaw" class="code-output">-</pre>
+                    </details>
+                </article>
+
+                <article class="panel panel-advanced">
+                    <div class="panel-top">
+                        <div>
+                            <p class="panel-kicker">Simulation Engine</p>
+                            <h2 class="panel-heading">Digital Twin</h2>
+                        </div>
+                    </div>
+                    <div class="insight-cards">
+                        <div class="insight-card">
+                            <p class="insight-label">Expected Improve</p>
+                            <p id="twinImprove" class="insight-value">-</p>
+                        </div>
+                        <div class="insight-card">
+                            <p class="insight-label">Orders Processed</p>
+                            <p id="twinProcessed" class="insight-value">-</p>
+                        </div>
+                    </div>
+                    <div id="twinBox" class="advanced-render">Run analysis to load digital twin simulation...</div>
+                    <details class="advanced-raw">
+                        <summary>View Raw JSON</summary>
+                        <pre id="twinRaw" class="code-output">-</pre>
+                    </details>
+                </article>
+            </section>
+
+            <section class="capabilities animate-in">
+                <article class="cap-card"><h4>Address Intelligence</h4><p>Parsing + confidence + geo validation.</p></article>
+                <article class="cap-card"><h4>Routing</h4><p>Sequence optimization with impact metrics.</p></article>
+                <article class="cap-card"><h4>Prediction</h4><p>Risk scoring with explainability.</p></article>
+                <article class="cap-card"><h4>Simulation</h4><p>Counterfactual + digital twin outcomes.</p></article>
+            </section>
+        </section>
+    </main>
+
+    <footer class="utility-footer">
+        <button id="themeToggle" class="utility-btn" type="button" aria-label="Toggle theme"><i class="fas fa-moon"></i><span>Theme</span></button>
+        <button id="soundToggle" class="utility-btn" type="button" aria-label="Toggle sound"><i class="fas fa-volume-up"></i><span>Sound</span></button>
+        <button id="worldToggle" class="utility-btn" type="button" aria-label="Open map"><i class="fas fa-globe"></i><span>World</span></button>
+    </footer>
+
+    <script src="/static/vendor/leaflet/leaflet.js"></script>
+    <script src="/static/vendor/chartjs/chart.min.js"></script>
+    <script src="/static/app.js?v=20260322-features3"></script>
+</body>
+</html>
